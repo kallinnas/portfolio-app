@@ -1,1 +1,21 @@
-<h1>{{ message }}</h1>
+<mat-sidenav-container>
+    <mat-sidenav #sNav role="navigation">
+        <app-sidenav (closeSidenav)="sNav.close()"></app-sidenav>
+    </mat-sidenav>
+
+    <mat-sidenav-content fxLayout="column" fxFill>
+        <app-header (sidenavToggle)="sNav.toggle()"></app-header>
+
+        <main fxFlex>
+            <router-outlet></router-outlet>
+        </main>
+
+        <footer fxLayout="column" style="width: 100%;">
+            <div fxLayout="row">
+                <hr fxFlex="90">
+            </div>
+            <p fxFlexAlign="center">Copyright © 2024 SignalR Game System</p>
+        </footer>
+    </mat-sidenav-content>
+
+</mat-sidenav-container>
