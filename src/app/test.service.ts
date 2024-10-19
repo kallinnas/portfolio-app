@@ -5,7 +5,7 @@ import { environment } from '../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class TestService {
-  private apiUrl = environment.apiUrl;
+  private apiUrl = environment.apiUrl + '/test';
 
   constructor(private http: HttpClient) { }
 
