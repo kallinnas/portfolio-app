@@ -6,21 +6,21 @@
         </button>
     </div>
 
-    <div fxLayoutAlign="center center" mat-button routerLink="/account" style="cursor: pointer; display: flex; align-items: center;">
+    <!-- <div fxLayoutAlign="center center" mat-button routerLink="/account" style="cursor: pointer; display: flex; align-items: center;">
         <img src="assets/signalr.png" style="width: 24px; height: 24px; margin-right: 8px;">
         <img src="assets/angular.png" style="width: 34px; height: 34px; margin-right: 8px;">
         Game Demo
-    </div>
+    </div> -->
 
     <div fxFlex fxLayout fxLayoutAlign="flex-end" fxHide.xs>
 
         <div fxLayout fxLayoutGap="10px">
-            <button mat-button *ngIf="appService.isAdminUser()" routerLink="/user-connection-state">{{connBtn}}
+            <!-- <button mat-button *ngIf="authService.getUserRole() == '1'" routerLink="/user-connection-state">{{connBtn}}
             </button>
-            <button mat-button *ngIf="isAuthenticated()" routerLink="/game-manager">{{rspBtn}}</button>
+            <button mat-button *ngIf="isAuthenticated()" routerLink="/game-manager">{{rspBtn}}</button> -->
             <button mat-button *ngIf="!isAuthenticated() && !isRegisterMode()" (click)="onAccessMode()">SignUp</button>
             <button mat-button *ngIf="!isAuthenticated() && isRegisterMode()" (click)="onAccessMode()">Login</button>
-            <!-- <button mat-button *ngIf="isAuthenticated()" (click)="onLogout()">Logout</button> -->
+            <button mat-button *ngIf="isAuthenticated()" (click)="onLogout()">Logout</button>
         </div>
     </div>
 

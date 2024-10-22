@@ -1,12 +1,12 @@
 import { Injectable } from "@angular/core";
 import { ActivatedRouteSnapshot, CanActivate, Router } from "@angular/router";
-import { ApiAuthService } from "../services/api-auth.service";
+import { AuthService } from "../service/auth.service";
 
 @Injectable({ providedIn: 'root' })
 export class AuthGuard implements CanActivate {
 
   constructor(
-    private apiAuthService: ApiAuthService,
+    private authService: AuthService,
     private router: Router
   ) { }
 
@@ -19,20 +19,20 @@ export class AuthGuard implements CanActivate {
         return false;
       }
 
-      const userRole = this.apiAuthService.getUserRole();
+      const userRole = this.authService.getUserRole();
 
       if (!userRole) {
         this.router.navigate(['auth']);
         return false;
       }
 
-      if (route.routeConfig?.path === 'display-connection-status' || route.routeConfig?.path === 'edit-products') {
+      if (route.routeConfig?.path === 'home' || route.routeConfig?.path === 'home') {
         if (userRole === '1') { // admin
           return true;
         } 
         
         else {
-          this.router.navigate(['display-products']);
+          this.router.navigate(['home']);
           return false;
         }
       }

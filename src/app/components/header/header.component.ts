@@ -1,8 +1,7 @@
 import { Component, computed, EventEmitter, Output } from '@angular/core';
 import { GeneralModule } from '../../modules/general.model';
-// import { LogoutService } from '../../services/signalr/logout.service';
 import { RouterLink } from '@angular/router';
-import { AppService } from '../../service/app.service';
+import { AuthService } from '../../service/auth.service';
 
 @Component({
   selector: 'app-header',
@@ -14,20 +13,18 @@ export class HeaderComponent {
 
   @Output() sidenavToggle = new EventEmitter<void>();
 
-  isRegisterMode = computed(() => this.appService.isRegisterMode());
-  isAuthenticated = computed(() => this.appService.isAuthenticated());
+  isRegisterMode = computed(() => this.authService.isRegisterMode());
+  isAuthenticated = computed(() => this.authService.isAuthenticated());
 
-  connBtn: string = 'User Connection State';
-  rspBtn: string = 'Rock-Scissors-Paper'
+  logoutBtn: string = 'Logout'
 
   constructor(
-    public appService: AppService,
-    // private logoutService: LogoutService,
+    public authService: AuthService,
   ) { }
 
-  onAccessMode() { this.appService.isRegisterMode.set(!this.isRegisterMode()); }
+  onAccessMode() { this.authService.isRegisterMode.set(!this.isRegisterMode()); }
 
   onToggleSidenav() { this.sidenavToggle.emit(); }
 
-  // onLogout() { this.logoutService.logout(); }
+  onLogout() { this.authService.logout(); }
 }

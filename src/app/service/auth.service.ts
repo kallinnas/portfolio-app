@@ -1,151 +1,96 @@
-import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
+import { Injectable, signal } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
+
+import { environment } from '../../environments/environment';
 import { UserRegistrDto } from '../model/user.model';
+
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
 
+  private baseUrl: string = `${environment.apiUrl}/Auth`;
+  isAuthenticated = signal<boolean>(false);
+  isRegisterMode = signal<boolean>(false);
+
   constructor(
-    public router: Router
+    public router: Router,
+    private http: HttpClient,
   ) { }
 
+  login(email: string, password: string): Observable<any> {
+    return this.http.post(`${this.baseUrl}/login`, { email, password });
+  }
+
+  register(user: UserRegistrDto): Observable<any> {
+    return this.http.post(`${this.baseUrl}/register`, user);
+  }
+
   logout(): void {
-    // this.signalrService.hubConnection.invoke("LogoutUser", this.signalrService.userData.id)
-    //   .catch(err => console.error(err));
+    this.http.post(`${this.baseUrl}/logout`, {}).subscribe(() => {
+      this.isAuthenticated.set(false);
+      this.router.navigate(['/auth']);
+    });
+  }  
+
+  private validateToken(token: string): Observable<any> {
+    return this.http.post<boolean>(`${this.baseUrl}/validateToken`, { token });
   }
 
-  logoutResponse(): void {
-    // this.signalrService.hubConnection.on('Logout_Response', () => {
-    //   localStorage.removeItem('token');
-    //   this.apiAuthService.checkAuthentication()
-    //   location.reload();
-    //   this.signalrService.hubConnection.stop();
-    // });
+  checkAuthentication(): void {
+    const token = this.getToken();
+
+    if (token) {
+      this.validateToken(token).subscribe(isValid => {
+        if (isValid) {
+          this.isAuthenticated.set(true);
+          this.authorizeUser(token);
+        }
+
+        else { localStorage.removeItem('token'); }
+      });
+    }
+
+    else { this.isAuthenticated.set(false); }
   }
 
-  authentificationProcess() {
-    // if (this.signalrService.hubConnection) {
-    //   if (this.signalrService.hubConnection.state === HubConnectionState.Connected) {
-    //     this.reAuthentificationListenerSuccess();
-    //     this.reAuthentification();
-    //   }
+  authorizeUser(token: string) {
+    localStorage.setItem('token', token);
 
-    //   else {
-    //     this.signalrService.signalrSubject$.subscribe(response => {
-    //       if (response.type == "HubConnectionStarted") {
-    //         this.reAuthentificationListenerSuccess();
-    //         this.reAuthentification();
-    //       }
-    //     });
-    //   }
-    // }
+    const userRole = this.getUserRole();
+
+    if (userRole) {
+      if (userRole === '1') {
+        this.router.navigate(['/home']);
+      }
+
+      else {
+        this.router.navigate(['/home']);
+      }
+    }
   }
 
-  launchHub(token: string) {
-    // this.signalrService.startConnection(token).then(() => {
-    //   this.authentificationProcess();
-    //   this.authentificationListenerSuccess();
-    //   this.authentificationListenerFail();
-    //   this.registrationListenerSuccess();
-    //   this.registrationListenerFail();
-    //   this.logoutResponse();
-    //   this.signalrService.offConnection(['Authentification_ResponseSuccess', 'Authentification_Fail', 'Registration_Fail', "ngOnDestroy in app"]);
-    // }).catch(err => {
-    //   console.error('Error starting SignalR connection:', err);
-    // });
+  private getToken(): string | null {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('token');
+    } else return null;
   }
 
-  async authentification(email: string, password: string) {
-    // const userDto = { email: email, password: password };
+  getUserRole(): string | null {
+    const token = this.getToken();
+    if (!token) return null;
 
-    // await this.signalrService.hubConnection.invoke('Authentification', userDto)
-    //   .then(() => {
-    //     // alert("Loading is attempt...")
-    //   })
-    //   .catch(err => console.log(err));
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return payload['role'];
   }
 
-  authentificationListenerSuccess() {
-    // if (this.signalrService.hubConnection && this.signalrService.hubConnection.state === signalR.HubConnectionState.Connected) {
-    //   // Ensure hub state connection before adding the listener
-    //   this.signalrService.hubConnection.on('Authentification_ResponseSuccess', (user: UserSignalrDto) => {
-    //     this.signalrService.userData = { ...user };
-    //     localStorage.setItem('token', user.id.toString());
+  // getUserId(): string | null {
+  //   const token = this.getToken();
+  //   if (!token) return null;
 
-    //     // alert('Logged-in successfully!');
-    //     this.router.navigate(["/edit-products"]);
-    //   });
-    // } else {
-    //   console.error('Hub connection is not in a connected state.');
-    // }
-  }
-
-  async reAuthentification() {
-    // try {
-    //   const userId = this.apiAuthService.getUserId();
-    //   await this.signalrService.hubConnection.invoke('ReAuthentification', userId)
-    //     .then(() => {
-    //       // alert("Loading is attempt...");
-    //     })
-    //     .catch(err => console.log(err));
-    // }
-
-    // catch (err) {
-    //   console.log(err);
-    // }
-  }
-
-  reAuthentificationListenerSuccess() {
-    // try {
-    //   if (this.signalrService.hubConnection && this.signalrService.hubConnection.state === signalR.HubConnectionState.Connected) {
-    //     this.signalrService.hubConnection.on('ReAuthentification_ResponseSuccess', (user: UserSignalrDto) => {
-
-    //       this.signalrService.userData = { ...user };
-    //       // alert('Re-authentificated!');
-
-    //       if (this.router.url == "/auth")
-    //         this.router.navigate(["/edit-products"]);
-    //     });
-    //   }
-
-    //   else {
-    //     console.error('Hub connection is not in a connected state.');
-    //   }
-    // }
-
-    // catch (err) {
-    //   console.log(err);
-    // }
-  }
-
-  async registration(user: UserRegistrDto) {
-    // await this.signalrService.hubConnection.invoke('Registration', user)
-    //   .then(() => {
-    //     alert("Loading is attempt...")
-    //   })
-    //   .catch(err => console.log(err));
-  }
-
-  registrationListenerSuccess() {
-    // if (this.signalrService.hubConnection && this.signalrService.hubConnection.state === signalR.HubConnectionState.Connected) {
-    //   this.signalrService.hubConnection.on('Registration_ResponseSuccess', (user: UserSignalrDto) => {
-    //     this.signalrService.userData = { ...user };
-    //     localStorage.setItem('token', user.id.toString());
-
-    //     // alert('Registrated successfully!');
-    //     this.router.navigate(["/edit-products"]);
-    //   });
-    // } else {
-    //   console.error('Hub connection is not in a connected state.');
-    // }
-  }
-
-  authentificationListenerFail() {
-    // this.signalrService.hubConnection.on("Authentification_Fail", () => alert("Wrong credentials!"));
-  }
-
-  registrationListenerFail() {
-    // this.signalrService.hubConnection.on("Registration_Fail", () => alert("Such email already taken."));
-  }
+  //   const payload = JSON.parse(atob(token.split('.')[1]));
+  //   return payload['nameid']; // 'nameid' corresponds to ClaimTypes.NameIdentifier
+  // }
 
 }

@@ -1,8 +1,7 @@
 import { Component } from '@angular/core';
-import { FormBuilder, FormGroup, NgForm, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { GeneralModule } from '../modules/general.model';
 import { AuthService } from '../service/auth.service';
-import { ApiAuthService } from '../service/api-auth.service';
 import { UserRegistrDto } from '../model/user.model';
 
 
@@ -22,7 +21,6 @@ export class AuthComponent {
   constructor(
     private fb: FormBuilder,
     public authService: AuthService,
-    private apiAuthService: ApiAuthService,
   ) { }
 
   ngOnInit(): void {
@@ -35,9 +33,6 @@ export class AuthComponent {
       password: ['', Validators.required],
       name: ['']
     });
-  }
-
-  ngOnDestroy(): void {
   }
 
   onSubmit() {
@@ -55,15 +50,12 @@ export class AuthComponent {
     }
   }
 
-  
-  toggleMode() {
-    this.isRegisterMode = !this.isRegisterMode;
-  }
+  toggleMode() { this.isRegisterMode = !this.isRegisterMode; }
 
   loginAPI(email: string, password: string) {
-    this.apiAuthService.login(email, password).subscribe({
+    this.authService.login(email, password).subscribe({
       next: response => {
-        this.authorizeUser(response.token);
+        this.authService.authorizeUser(response.token);
       },
 
       error: err => this.errorMessage = 'Login failed. Please check your credentials.'
@@ -71,30 +63,13 @@ export class AuthComponent {
   }
 
   registerAPI(user: UserRegistrDto) {
-    this.apiAuthService.register(user).subscribe({
+    this.authService.register(user).subscribe({
       next: response => {
-        this.authorizeUser(response.token);
+        this.authService.authorizeUser(response.token);
       },
 
       error: err => this.errorMessage = 'Registration failed. Please try again.'
     });
   }
 
-  private authorizeUser(token: string) {
-    localStorage.setItem('token', token);
-
-    this.authService.launchHub(token)
-    this.apiAuthService.checkAuthentication();
-    const userRole = this.apiAuthService.getUserRole();
-
-    if (userRole) {
-      if (userRole === '1') {
-        this.authService.router.navigate(['/display-connection-status']);
-      }
-
-      else {
-        this.authService.router.navigate(['/edit-products']);
-      }
-    }
-  }
 }
