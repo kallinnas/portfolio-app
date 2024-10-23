@@ -26,7 +26,7 @@ export class AuthGuard implements CanActivate {
         return false;
       }
 
-      if (route.routeConfig?.path === 'home' || route.routeConfig?.path === 'home') {
+      if (route.routeConfig?.path === 'home' || route.routeConfig?.path === 'cv') {
         if (userRole === '1') { // admin
           return true;
         } 
