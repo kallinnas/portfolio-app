@@ -17,7 +17,9 @@ export class AuthService {
   constructor(
     public router: Router,
     private http: HttpClient,
-  ) { }
+  ) {
+    // this.checkAuthentication();
+   }
 
   login(email: string, password: string): Observable<any> {
     return this.http.post(`${this.baseUrl}/login`, { email, password });
@@ -47,16 +49,17 @@ export class AuthService {
           this.isAuthenticated.set(true);
           this.authorizeUser(token);
         }
-
+        
         else { localStorage.removeItem('token'); }
       });
     }
-
+    
     else { this.isAuthenticated.set(false); }
   }
-
+  
   authorizeUser(token: string) {
     localStorage.setItem('token', token);
+    this.isAuthenticated.set(true);
 
     const userRole = this.getUserRole();
 

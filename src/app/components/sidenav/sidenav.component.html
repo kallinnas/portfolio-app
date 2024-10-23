@@ -1,7 +1,12 @@
 <mat-nav-list class="sidenav-list" fxLayout="column" fxLayoutAlign="start stretch" fxFlexFill>
-    <a *ngIf="isAuthenticated()" mat-list-item routerLink="/account" (click)="onCloseSidenav()">
+    <a *ngIf="isAuthenticated()" mat-list-item routerLink="/home" (click)="onCloseSidenav()">
         <i class="fa-solid fa-user"></i>
-        Account
+        Home
+    </a>
+
+    <a *ngIf="isAuthenticated()" mat-list-item routerLink="/cv" (click)="onCloseSidenav()">
+        <i class="fa-solid fa-user"></i>
+        CV
     </a>
 
     <a *ngIf="!isAuthenticated() && !isRegisterMode()" mat-list-item (click)="onAccessMode()" (click)="onCloseSidenav()"

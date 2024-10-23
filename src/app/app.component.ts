@@ -19,24 +19,11 @@ import { HeaderComponent } from './components/header/header.component';
 export class AppComponent implements OnInit, OnDestroy {
 
   subscriptions: Subscription[] = [];
-  // isAuthorized: boolean = false;
   isAuthPage: boolean = false;
 
   constructor(
     public authService: AuthService,
-  ) {
-
-    // effect(() => {// Use ng's `effect` to react to signal changes
-    //   const token = localStorage.getItem('token');
-
-    //   if (this.authService.isAuthenticated() && token == undefined) {
-    //   } 
-
-    //   else {
-    //     localStorage.removeItem('token');
-    //   }
-    // });
-  }
+  ) { }
 
   ngOnInit(): void {
     if (typeof window !== 'undefined') {
