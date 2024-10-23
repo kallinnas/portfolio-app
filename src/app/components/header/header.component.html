@@ -20,6 +20,7 @@
             <button mat-button *ngIf="isAuthenticated()" routerLink="/game-manager">{{rspBtn}}</button> -->
             <button mat-button *ngIf="!isAuthenticated() && !isRegisterMode()" (click)="onAccessMode()">SignUp</button>
             <button mat-button *ngIf="!isAuthenticated() && isRegisterMode()" (click)="onAccessMode()">Login</button>
+            <button mat-button *ngIf="isAuthenticated()" routerLink="/cv">CV</button>
             <button mat-button *ngIf="isAuthenticated()" (click)="onLogout()">Logout</button>
         </div>
     </div>
