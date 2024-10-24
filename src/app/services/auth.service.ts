@@ -17,9 +17,9 @@ export class AuthService {
   constructor(
     public router: Router,
     private http: HttpClient,
-  ) {
-    // this.checkAuthentication();
-   }
+  ) { 
+    this.checkAuthentication();
+  }
 
   login(email: string, password: string): Observable<any> {
     return this.http.post(`${this.baseUrl}/login`, { email, password });
@@ -32,9 +32,9 @@ export class AuthService {
   logout(): void {
     this.http.post(`${this.baseUrl}/logout`, {}).subscribe(() => {
       this.isAuthenticated.set(false);
-      this.router.navigate(['/auth']);
+      this.router.navigate(['auth']);
     });
-  }  
+  }
 
   private validateToken(token: string): Observable<any> {
     return this.http.post<boolean>(`${this.baseUrl}/validateToken`, { token });
@@ -47,29 +47,32 @@ export class AuthService {
       this.validateToken(token).subscribe(isValid => {
         if (isValid) {
           this.isAuthenticated.set(true);
-          this.authorizeUser(token);
+          this.authorizeUser();
         }
-        
+
         else { localStorage.removeItem('token'); }
       });
     }
-    
+
     else { this.isAuthenticated.set(false); }
   }
-  
-  authorizeUser(token: string) {
-    localStorage.setItem('token', token);
+
+  authorizeUser(token: any = null) {
     this.isAuthenticated.set(true);
+
+    if (token) {
+      localStorage.setItem('token', token);
+    }
 
     const userRole = this.getUserRole();
 
     if (userRole) {
       if (userRole === '1') {
-        this.router.navigate(['/home']);
+        this.router.navigate(['home']);
       }
 
       else {
-        this.router.navigate(['/home']);
+        this.router.navigate(['home']);
       }
     }
   }

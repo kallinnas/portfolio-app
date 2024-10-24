@@ -5,7 +5,7 @@ import { filter, Subscription } from 'rxjs';
 
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { GeneralModule } from './modules/general.model';
-import { AuthService } from './service/auth.service';
+import { AuthService } from './services/auth.service';
 import { SidenavComponent } from './components/sidenav/sidenav.component';
 import { HeaderComponent } from './components/header/header.component';
 
@@ -27,7 +27,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     if (typeof window !== 'undefined') {
-      this.authService.checkAuthentication();
+      // this.authService.checkAuthentication();
 
       this.authService.router.events
         .pipe(filter(event => event instanceof NavigationEnd))

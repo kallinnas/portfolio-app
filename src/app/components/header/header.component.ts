@@ -1,7 +1,7 @@
 import { Component, computed, EventEmitter, Output } from '@angular/core';
 import { GeneralModule } from '../../modules/general.model';
 import { RouterLink } from '@angular/router';
-import { AuthService } from '../../service/auth.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-header',
