@@ -55,7 +55,7 @@ export class AuthComponent {
   loginAPI(email: string, password: string) {
     this.authService.login(email, password).subscribe({
       next: response => {
-        this.authService.authorizeUser(response.token);
+        this.authService.authorizeUser(response.accessToken);
       },
 
       error: err => this.errorMessage = 'Login failed. Please check your credentials.'

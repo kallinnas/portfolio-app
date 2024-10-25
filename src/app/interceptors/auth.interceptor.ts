@@ -1,35 +1,48 @@
-import { HttpEvent, HttpRequest, HttpHandlerFn, HttpErrorResponse } from '@angular/common/http';
-import { catchError, Observable, throwError } from 'rxjs';
+import { HttpRequest, HttpHandlerFn, HttpEvent, HttpInterceptorFn } from '@angular/common/http';
+import { Observable, throwError } from 'rxjs';
+import { inject } from '@angular/core';
+import { catchError, switchMap } from 'rxjs/operators';
+import { HttpErrorResponse } from '@angular/common/http';
+import { AuthService } from '../services/auth.service';
 
-// export const authInterceptor = (req: HttpRequest<any>, next: HttpHandlerFn): Observable<HttpEvent<any>> => {
-//   const token = localStorage.getItem('token');
 
-//   if (token) {
-//     const clonedReq = req.clone({
-//       setHeaders: {
-//         Authorization: `Bearer ${token}`
-//       }
-//     });
-//     return next(clonedReq);
-//   }
+export const AuthInterceptor: HttpInterceptorFn = (req: HttpRequest<any>, next: HttpHandlerFn): Observable<HttpEvent<any>> => {
+  const authService: AuthService = inject(AuthService);
+  const accessToken = authService.getAccessToken();
 
-//   return next(req);
-// };
-
-export const authInterceptor = (req: HttpRequest<any>, next: HttpHandlerFn): Observable<HttpEvent<any>> => {
-  const token = localStorage.getItem('token');
-
-  if (token) {
+  if (accessToken) {
     const clonedReq = req.clone({
+      withCredentials: true,
       setHeaders: {
-        Authorization: `Bearer ${token}`
-      }
+        Authorization: `Bearer ${accessToken}`,
+      },
     });
+
     return next(clonedReq).pipe(
       catchError((error: HttpErrorResponse) => {
         if (error.status === 401) {
-          // Handle token expiration or invalid token here, e.g., logout the user
-          console.log('Unauthorized - Token may be invalid');
+          // Call refresh token and retry the request
+          return authService.refreshAccessToken().pipe(
+            switchMap((newToken) => {
+              // Ensure the new token is properly retrieved
+              if (newToken.accessToken) {
+                const retryReq = req.clone({
+                  withCredentials: true,
+                  setHeaders: {
+                    Authorization: `Bearer ${newToken.accessToken.result}`,
+                  },
+                });
+                return next(retryReq);
+              }
+              // Logout if refresh token fails
+              authService.logout();
+              return throwError(() => error);
+            }),
+            catchError((err) => {
+              authService.logout();
+              return throwError(() => err);
+            })
+          );
         }
         return throwError(() => error);
       })

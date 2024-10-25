@@ -1,4 +1,4 @@
-import { Observable } from 'rxjs';
+import { Observable, tap } from 'rxjs';
 import { Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
@@ -14,23 +14,35 @@ export class AuthService {
   isAuthenticated = signal<boolean>(false);
   isRegisterMode = signal<boolean>(false);
 
+  private accessToken: string | null = null;
+  getAccessToken(): string | null { return this.accessToken; }
+  removeAccessToken(): void { this.accessToken = null; }
+
   constructor(
     public router: Router,
     private http: HttpClient,
-  ) { 
+  ) {
     this.checkAuthentication();
   }
 
   login(email: string, password: string): Observable<any> {
-    return this.http.post(`${this.baseUrl}/login`, { email, password });
+    return this.http.post(`${this.baseUrl}/login`, { email, password }, { withCredentials: true });
   }
 
   register(user: UserRegistrDto): Observable<any> {
     return this.http.post(`${this.baseUrl}/register`, user);
   }
 
+  refreshAccessToken(): Observable<any> {
+    return this.http.post(`${this.baseUrl}/refresh-token`, {}, { withCredentials: true }).pipe(
+      tap((response: any) => {
+        this.accessToken = response.accessToken.result;
+      }));
+  }
+
   logout(): void {
     this.http.post(`${this.baseUrl}/logout`, {}).subscribe(() => {
+      this.removeAccessToken();
       this.isAuthenticated.set(false);
       this.router.navigate(['auth']);
     });
@@ -41,16 +53,17 @@ export class AuthService {
   }
 
   checkAuthentication(): void {
-    const token = this.getToken();
-
-    if (token) {
-      this.validateToken(token).subscribe(isValid => {
+    if (this.accessToken) {
+      this.validateToken(this.accessToken).subscribe(isValid => {
         if (isValid) {
           this.isAuthenticated.set(true);
           this.authorizeUser();
         }
 
-        else { localStorage.removeItem('token'); }
+        else {
+          this.isAuthenticated.set(false);
+          this.removeAccessToken();
+        }
       });
     }
 
@@ -58,11 +71,8 @@ export class AuthService {
   }
 
   authorizeUser(token: any = null) {
+    this.accessToken = token;
     this.isAuthenticated.set(true);
-
-    if (token) {
-      localStorage.setItem('token', token);
-    }
 
     const userRole = this.getUserRole();
 
@@ -77,17 +87,9 @@ export class AuthService {
     }
   }
 
-  private getToken(): string | null {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('token');
-    } else return null;
-  }
-
   getUserRole(): string | null {
-    const token = this.getToken();
-    if (!token) return null;
-
-    const payload = JSON.parse(atob(token.split('.')[1]));
+    if (!this.accessToken) return null;
+    const payload = JSON.parse(atob(this.accessToken.split('.')[1]));
     return payload['role'];
   }
 
