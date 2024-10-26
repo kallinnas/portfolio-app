@@ -65,7 +65,7 @@ export class AuthComponent {
   registerAPI(user: UserRegistrDto) {
     this.authService.register(user).subscribe({
       next: response => {
-        this.authService.authorizeUser(response.token);
+        this.authService.authorizeUser(response.accessToken);
       },
 
       error: err => this.errorMessage = 'Registration failed. Please try again.'

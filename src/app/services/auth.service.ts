@@ -30,10 +30,12 @@ export class AuthService {
   }
 
   register(user: UserRegistrDto): Observable<any> {
-    return this.http.post(`${this.baseUrl}/register`, user);
+    return this.http.post(`${this.baseUrl}/register`, user, { withCredentials: true });
   }
 
   refreshAccessToken(): Observable<any> {
+    this.removeAccessToken();
+
     return this.http.post(`${this.baseUrl}/refresh-token`, {}, { withCredentials: true }).pipe(
       tap((response: any) => {
         this.accessToken = response.accessToken.result;
@@ -48,13 +50,13 @@ export class AuthService {
     });
   }
 
-  private validateToken(token: string): Observable<any> {
-    return this.http.post<boolean>(`${this.baseUrl}/validateToken`, { token });
+  validateAccessToken(): Observable<any> {
+    return this.http.post<boolean>(`${this.baseUrl}/validateToken`, { token: this.accessToken });
   }
 
   checkAuthentication(): void {
     if (this.accessToken) {
-      this.validateToken(this.accessToken).subscribe(isValid => {
+      this.validateAccessToken().subscribe(isValid => {
         if (isValid) {
           this.isAuthenticated.set(true);
           this.authorizeUser();
