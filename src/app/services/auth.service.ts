@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 
 import { environment } from '../../environments/environment';
 import { UserRegistrDto } from '../model/user.model';
+import { UiService } from './ui.service';
 
 
 @Injectable({ providedIn: 'root' })
@@ -21,8 +22,45 @@ export class AuthService {
   constructor(
     public router: Router,
     private http: HttpClient,
+    private uiService: UiService
   ) {
     this.checkAuthentication();
+  }
+
+  private checkAuthentication(): void {
+    this.accessToken ? this.validateAccessToken() : this.isAuthenticated.set(false);
+  }
+
+  validateAccessToken(): Observable<any> {
+    return this.http.post<boolean>(`${this.baseUrl}/validateToken`, { token: this.accessToken }).pipe(
+      tap(isValid => {
+        this.isAuthenticated.set(isValid);
+        isValid ? this.authorizeUser() : this.refreshAccessToken();
+      }));
+  }
+
+  // refreshAccessToken(): Observable<any> {
+  //   this.removeAccessToken();
+
+  //   return this.http.post(`${this.baseUrl}/refreshToken`, {}, { withCredentials: true }).pipe(
+  //     tap((response: any) => {
+  //       this.accessToken = response.accessToken.result;
+  //     }));
+  // }
+
+  refreshAccessToken(): Promise<any> {
+    this.removeAccessToken();
+
+    return this.http.post('/api/Auth/refreshToken', {}, { withCredentials: true })
+      .toPromise().then((response: any) => {
+        if (response.tokenStatus === 'expired' || response.tokenStatus === 'invalid') {
+          this.logout();
+        }
+
+        else if (response.tokenStatus === 'valid') {
+          this.accessToken = response.accessToken.result;
+        }
+      });
   }
 
   login(email: string, password: string): Observable<any> {
@@ -33,43 +71,13 @@ export class AuthService {
     return this.http.post(`${this.baseUrl}/register`, user, { withCredentials: true });
   }
 
-  refreshAccessToken(): Observable<any> {
-    this.removeAccessToken();
-
-    return this.http.post(`${this.baseUrl}/refresh-token`, {}, { withCredentials: true }).pipe(
-      tap((response: any) => {
-        this.accessToken = response.accessToken.result;
-      }));
-  }
-
-  logout(): void {
+  logout(afterRefreshToken: boolean = false): void {
     this.http.post(`${this.baseUrl}/logout`, {}).subscribe(() => {
       this.removeAccessToken();
       this.isAuthenticated.set(false);
       this.router.navigate(['auth']);
+      afterRefreshToken ?? this.uiService.showSnackbar('Session has been expired. Relogin please.', '', 3000);
     });
-  }
-
-  validateAccessToken(): Observable<any> {
-    return this.http.post<boolean>(`${this.baseUrl}/validateToken`, { token: this.accessToken });
-  }
-
-  checkAuthentication(): void {
-    if (this.accessToken) {
-      this.validateAccessToken().subscribe(isValid => {
-        if (isValid) {
-          this.isAuthenticated.set(true);
-          this.authorizeUser();
-        }
-
-        else {
-          this.isAuthenticated.set(false);
-          this.removeAccessToken();
-        }
-      });
-    }
-
-    else { this.isAuthenticated.set(false); }
   }
 
   authorizeUser(token: any = null) {
@@ -79,13 +87,8 @@ export class AuthService {
     const userRole = this.getUserRole();
 
     if (userRole) {
-      if (userRole === '1') {
-        this.router.navigate(['home']);
-      }
-
-      else {
-        this.router.navigate(['home']);
-      }
+      if (userRole === '1') { this.router.navigate(['home']); }
+      else { this.router.navigate(['home']); }
     }
   }
 

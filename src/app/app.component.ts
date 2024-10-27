@@ -26,7 +26,6 @@ export class AppComponent implements OnInit {
 
   ngOnInit(): void {
     if (typeof window !== 'undefined') {
-      // this.authService.checkAuthentication();
 
       this.authService.router.events
         .pipe(filter(event => event instanceof NavigationEnd))
