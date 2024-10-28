@@ -1,7 +1,7 @@
 import { HttpRequest, HttpHandlerFn, HttpEvent, HttpInterceptorFn } from '@angular/common/http';
 import { HttpErrorResponse } from '@angular/common/http';
 import { catchError, switchMap } from 'rxjs/operators';
-import { EMPTY, from, Observable } from 'rxjs';
+import { EMPTY, Observable } from 'rxjs';
 import { inject } from '@angular/core';
 
 import { AuthService } from '../services/auth.service';

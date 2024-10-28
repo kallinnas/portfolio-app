@@ -64,7 +64,7 @@ export class AuthComponent {
         this.authService.authorizeUser(response.accessToken);
       },
 
-      error: err => this.errorMessage = 'Login failed. Please check your credentials.'
+      error: err => { throw err; }
     });
   }
 
@@ -74,7 +74,7 @@ export class AuthComponent {
         this.authService.authorizeUser(response.accessToken);
       },
 
-      error: err => this.errorMessage = 'Registration failed. Please try again.'
+      error: err => { throw err; }
     });
   }
 

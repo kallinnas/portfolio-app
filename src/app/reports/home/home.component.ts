@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { TestService } from '../../services/test.service';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { UiService } from '../../services/ui.service';
 
 @Component({
   selector: 'app-home',
@@ -12,7 +12,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 export class HomeComponent {
   
   message: string = '';
-  constructor(private testService: TestService, private snackBar: MatSnackBar) {}
+  constructor(private testService: TestService, private uiService: UiService) {}
 
   ngOnInit() {
     this.testService.getTestMessage().subscribe({
@@ -20,7 +20,7 @@ export class HomeComponent {
         this.message = data.message;
       },
       error: err => {
-        this.snackBar.open('Error retrieving data. Please try again later.', 'Close', { duration: 3000 });
+        this.uiService.showSnackbar('Please try to relogin.', 'Close', 3000);
       }
     });
   }
