@@ -21,7 +21,7 @@ export const AuthInterceptor: HttpInterceptorFn = (req: HttpRequest<any>, next: 
     catchError((error: HttpErrorResponse) => {
 
       if (error.status === 401) { // set during login proccess in cookie - refreshToken brings valid AccessToken if last expaired
-        return authService.refreshAccessToken().pipe(
+        return authService.updateAccessToken().pipe(
 
           switchMap((newToken) => {
             if (newToken.accessToken) { // update request with new accessToken

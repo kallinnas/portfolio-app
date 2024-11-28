@@ -1,4 +1,4 @@
-import { Observable, tap } from 'rxjs';
+import { catchError, Observable, tap, throwError } from 'rxjs';
 import { Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
@@ -33,25 +33,33 @@ export class AuthService {
   validateAccessToken(): Observable<any> {
     return this.http.post<boolean>(`${this.baseUrl}/validateToken`, { token: this.accessToken }).pipe(
       tap(isValid => {
-        isValid ? this.authorizeUser() : this.refreshAccessToken();
+        isValid ? this.authorizeUser() : this.updateAccessToken();
       }));
   }
 
-  refreshAccessToken(): Observable<any> {
+  updateAccessToken(): Observable<any> {
     this.removeAccessToken();
 
-    return this.http.post(`${this.baseUrl}/refreshToken`, {}, { withCredentials: true }).pipe(
+    return this.http.post(`${this.baseUrl}/updateAccessToken`, {}, { withCredentials: true }).pipe(
       tap((response: any) => {
         this.accessToken = response.accessToken.result;
       }));
   }
 
-  login(email: string, password: string): Observable<any> {
-    return this.http.post(`${this.baseUrl}/login`, { email, password }, { withCredentials: true });
+  login(email: string, password: string): void {
+    this.http.post<any>(`${this.baseUrl}/login`, { email, password }, { withCredentials: true })
+      .subscribe({
+        next: response => { this.authorizeUser(response.accessToken); },
+        error: err => { console.error('Login failed', err); }
+      });
   }
 
-  register(user: UserRegistrDto): Observable<any> {
-    return this.http.post(`${this.baseUrl}/register`, user, { withCredentials: true });
+  register(user: UserRegistrDto): void {
+    this.http.post<any>(`${this.baseUrl}/register`, user, { withCredentials: true })
+      .subscribe({
+        next: response => { this.authorizeUser(response.accessToken); },
+        error: err => { console.error('Registration failed', err); }
+      });
   }
 
   logout(afterRefreshToken: boolean = false): void {
@@ -62,18 +70,13 @@ export class AuthService {
       this.afterRefreshToken = afterRefreshToken;
     });
   }
-
-  authorizeUser(token: any = null) {
+  
+  private authorizeUser(token: any = null): void {
     this.afterRefreshToken = false;
     this.accessToken = token;
     this.isAuthenticated.set(true);
 
-    const userRole = this.getUserRole();
-
-    if (userRole) {
-      if (userRole === '1') { this.router.navigate(['home']); }
-      else { this.router.navigate(['home']); }
-    }
+    this.getUserRole() === '1' ? this.router.navigate(['home']) : this.router.navigate(['home']);
   }
 
   getUserRole(): string | null {

@@ -48,34 +48,14 @@ export class AuthComponent {
 
     if (this.isRegisterMode) {
       const user = new UserRegistrDto(this.authForm.value.email, this.authForm.value.password, this.authForm.value.name);
-      this.registerAPI(user);
+      this.authService.register(user);
     }
 
     else {
-      this.loginAPI(this.authForm.value.email, this.authForm.value.password);
+      this.authService.login(this.authForm.value.email, this.authForm.value.password);
     }
   }
 
   toggleMode() { this.isRegisterMode = !this.isRegisterMode; }
-
-  loginAPI(email: string, password: string) {
-    this.authService.login(email, password).subscribe({
-      next: response => {
-        this.authService.authorizeUser(response.accessToken);
-      },
-
-      error: err => { throw err; }
-    });
-  }
-
-  registerAPI(user: UserRegistrDto) {
-    this.authService.register(user).subscribe({
-      next: response => {
-        this.authService.authorizeUser(response.accessToken);
-      },
-
-      error: err => { throw err; }
-    });
-  }
 
 }
