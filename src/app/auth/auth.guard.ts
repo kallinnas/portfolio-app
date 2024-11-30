@@ -1,28 +1,32 @@
+import { ActivatedRouteSnapshot, CanActivate } from "@angular/router";
 import { Injectable } from "@angular/core";
-import { ActivatedRouteSnapshot, CanActivate, Router } from "@angular/router";
-import { AuthService } from "../services/auth.service";
+
+import { AccessTokenService } from "../services/token/access-token.service";
+import { NavigationService } from "../services/navigation.service";
+import { RefreshTokenService } from "../services/token/refresh-token.service";
+import { ValidationTokenService } from "../services/token/validation-token.service";
+
 
 @Injectable({ providedIn: 'root' })
 export class AuthGuard implements CanActivate {
 
   constructor(
-    private authService: AuthService,
-    private router: Router
+    private validationTokenService: ValidationTokenService,
+    private accessTokenService: AccessTokenService,
+    private navigationService: NavigationService
   ) { }
 
   canActivate(route: ActivatedRouteSnapshot): boolean {
     if (typeof window !== 'undefined') {
-      const token = this.authService.getAccessToken();
 
-      if (!token) {
-        this.router.navigate(['auth']);
-        return false;
+      if (!this.accessTokenService.getAccessToken()) {
+        this.validationTokenService.validateTokenProccess();        
       }
 
-      const userRole = this.authService.getUserRole();
+      const userRole = this.accessTokenService.getUserRole();
 
       if (!userRole) {
-        this.router.navigate(['auth']);
+        this.navigationService.router.navigate(['auth']);
         return false;
       }
 
@@ -36,11 +40,6 @@ export class AuthGuard implements CanActivate {
       //     return false;
       //   }
       // }
-    }
-
-    else {
-      this.router.navigate(['auth']);
-      return false;
     }
 
     return true;

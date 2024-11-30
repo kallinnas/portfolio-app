@@ -23,7 +23,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
   exports: [MatTableModule, MatButtonModule, MatIconModule, MatSortModule, MatPaginatorModule,
     MatFormFieldModule, MatInputModule, MatAutocompleteModule, MatSelectModule, MatOptionModule,
     MatDatepickerModule, MatNativeDateModule, MatCardModule, MatDialogModule, MatProgressSpinnerModule,
-    MatListModule, MatToolbarModule, MatSidenavModule, MatProgressSpinnerModule, MatSnackBarModule
+    MatListModule, MatToolbarModule, MatSidenavModule, MatSnackBarModule
   ]
 })
 export class MaterialModule { }

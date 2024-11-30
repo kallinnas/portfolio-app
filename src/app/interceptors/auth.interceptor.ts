@@ -1,15 +1,16 @@
-import { HttpRequest, HttpHandlerFn, HttpEvent, HttpInterceptorFn } from '@angular/common/http';
-import { HttpErrorResponse } from '@angular/common/http';
+import { HttpErrorResponse, HttpEvent, HttpHandlerFn, HttpInterceptorFn, HttpRequest } from '@angular/common/http';
 import { catchError, switchMap } from 'rxjs/operators';
-import { EMPTY, Observable } from 'rxjs';
 import { inject } from '@angular/core';
+import { EMPTY, Observable } from 'rxjs';
 
+import { AccessTokenService } from '../services/token/access-token.service';
 import { AuthService } from '../services/auth.service';
 
 
 export const AuthInterceptor: HttpInterceptorFn = (req: HttpRequest<any>, next: HttpHandlerFn): Observable<HttpEvent<any>> => {
   const authService: AuthService = inject(AuthService);
-  const accessToken = authService.getAccessToken();
+  const accessTokenService: AccessTokenService = inject(AccessTokenService);
+  const accessToken = accessTokenService.getAccessToken();
 
   if (!accessToken) {
     return next(req);
@@ -21,11 +22,11 @@ export const AuthInterceptor: HttpInterceptorFn = (req: HttpRequest<any>, next: 
     catchError((error: HttpErrorResponse) => {
 
       if (error.status === 401) { // set during login proccess in cookie - refreshToken brings valid AccessToken if last expaired
-        return authService.updateAccessToken().pipe(
+        return accessTokenService.updateAccessToken().pipe(
 
           switchMap((newToken) => {
             if (newToken.accessToken) { // update request with new accessToken
-              const retryReq = attachTokenToRequest(req, authService.getAccessToken()!);
+              const retryReq = attachTokenToRequest(req, accessTokenService.getAccessToken()!);
               return next(retryReq);
             }
 

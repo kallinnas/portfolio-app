@@ -10,9 +10,9 @@ import { UiService } from '../../services/ui.service';
   styleUrl: './home.component.scss'
 })
 export class HomeComponent {
-  
+
   message: string = '';
-  constructor(private testService: TestService, private uiService: UiService) {}
+  constructor(private testService: TestService, private uiService: UiService) { }
 
   ngOnInit() {
     this.testService.getTestMessage().subscribe({
@@ -20,7 +20,7 @@ export class HomeComponent {
         this.message = data.message;
       },
       error: err => {
-        this.uiService.showSnackbar('Please try to relogin.', 'Close', 3000);
+        this.uiService.showSnackbar('Please try to relogin.');
       }
     });
   }

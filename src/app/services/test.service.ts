@@ -10,6 +10,6 @@ export class TestService {
   constructor(private http: HttpClient) { }
 
   getTestMessage(): Observable<any> {
-    return this.http.get<any>(this.apiUrl);
+    return this.http.get<any>(this.apiUrl, { withCredentials: true });
   }
 }

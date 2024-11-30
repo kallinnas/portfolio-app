@@ -8,7 +8,7 @@ export class UiService {
     private snackbar: MatSnackBar,
   ) { }
 
-  showSnackbar(message: string, action: string, duration: number) {
+  showSnackbar(message: string, action: string = 'Close', duration: number = 4000) {
     this.snackbar.open(message, action, { duration: duration });
   }
 }

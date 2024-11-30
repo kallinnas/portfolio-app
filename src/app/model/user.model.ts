@@ -14,11 +14,15 @@ export class UserAuthDto {
 }
 
 export class UserRegistrDto {
-    constructor(
-        public email: string,
-        public password: string,
-        public name: string
-    ) { }
+    public email: string;
+    public password: string;
+    public name: string;
+  
+    constructor(data: { email: string; password: string; name: string }) {
+      this.email = data.email;
+      this.password = data.password;
+      this.name = data.name;
+    }
 }
 
 export class UserSignalrDto {
