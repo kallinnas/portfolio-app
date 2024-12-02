@@ -6,11 +6,11 @@ import { AuthGuard } from './auth/auth.guard';
 import { CvComponent } from './cv/cv.component';
 
 export const routes: Routes = [
-    { path: '', redirectTo: 'auth', pathMatch: 'full' },
+    { path: '', redirectTo: 'home', pathMatch: 'full' },
     { path: 'auth', component: AuthComponent },
     { path: 'home', component: HomeComponent, canActivate: [AuthGuard] },
     { path: 'cv', component: CvComponent, canActivate: [AuthGuard] },
-    { path: '**', redirectTo: 'auth', pathMatch: 'full' },
+    { path: '**', redirectTo: 'home', pathMatch: 'full' },
 ];
 
 @NgModule({

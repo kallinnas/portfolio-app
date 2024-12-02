@@ -6,8 +6,7 @@ import { GeneralModule } from '../../modules/general.model';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
-  selector: 'app-header',
-  standalone: true,
+  selector: 'app-header', standalone: true,
   imports: [GeneralModule, RouterLink],
   templateUrl: './header.component.html', styleUrl: './header.component.scss'
 })
@@ -22,8 +21,7 @@ export class HeaderComponent {
 
   constructor(
     public authService: AuthService,
-    private accessTokenService: AccessTokenService,
-
+    private accessTokenService: AccessTokenService
   ) { }
 
   onAccessMode() { this.authService.isRegisterMode.set(!this.isRegisterMode()); }
