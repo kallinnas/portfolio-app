@@ -1,9 +1,10 @@
 import { Injectable, signal } from '@angular/core';
 
-import { UserRegistrDto } from '../model/user.model';
-import { NavigationService } from './navigation.service';
-import { AccessTokenService } from './token/access-token.service';
 import { environment } from '../../environments/environment';
+import { NavigationService } from './navigation.service';
+import { UserRegistrDto } from '../model/user.model';
+import { TokenService } from './token.service';
+import { UiService } from './ui.service';
 
 
 @Injectable({ providedIn: 'root' })
@@ -15,13 +16,17 @@ export class AuthService {
 
   constructor(
     private navigationService: NavigationService,
-    private accessTokenService: AccessTokenService,
+    private accessTokenService: TokenService,
+    private uiService: UiService,
   ) { }
 
   login(email: string, password: string): void {
     this.navigationService.http.post<any>(`${this.baseUrl}/login`, { email, password }, { withCredentials: true })
       .subscribe({
-        next: response => { this.accessTokenService.setAccessToken(response.accessToken); },
+        next: () => {
+          this.navigationService.router.navigate(['home']);
+          this.uiService.showSnackbar('Loged in successfully.');
+        },
         error: err => { console.error('Login failed', err); }
       });
   }
@@ -29,16 +34,21 @@ export class AuthService {
   register(user: UserRegistrDto): void {
     this.navigationService.http.post<any>(`${this.baseUrl}/register`, user, { withCredentials: true })
       .subscribe({
-        next: response => { this.accessTokenService.setAccessToken(response.accessToken); },
+        next: () => {
+          this.navigationService.router.navigate(['home']);
+          this.uiService.showSnackbar('Registration completed successfully.');
+        },
         error: err => { console.error('Registration failed', err); }
       });
   }
 
-  logout(afterRefreshToken: boolean = false): void {
-    this.accessTokenService.removeAccessToken();
-    this.navigationService.http.post(`${this.baseUrl}/logout`, {}).subscribe(() => {
-      this.navigationService.router.navigate(['auth']);
-      // this.afterRefreshToken = afterRefreshToken;
+  logout(): void {
+    this.navigationService.http.post(`${this.baseUrl}/logout`, {}, { withCredentials: true }).subscribe({
+      next: () => {
+        this.accessTokenService.removeAccessToken();
+        this.uiService.showSnackbar('Logout successfully.');
+      },
+      error: err => { console.error('Logout failed', err); },
     });
   }
 

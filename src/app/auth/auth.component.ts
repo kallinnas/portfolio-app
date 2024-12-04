@@ -1,11 +1,9 @@
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Component } from '@angular/core';
 
-import { AccessTokenService } from '../services/token/access-token.service';
 import { GeneralModule } from '../modules/general.model';
 import { AuthService } from '../services/auth.service';
 import { UserRegistrDto } from '../model/user.model';
-import { UiService } from '../services/ui.service';
 
 
 @Component({
@@ -21,17 +19,11 @@ export class AuthComponent {
 
   constructor(
     private fb: FormBuilder,
-    private uiService: UiService,
     public authService: AuthService,
-    private accessTokenService: AccessTokenService,
   ) { }
 
   ngOnInit(): void {
     this.initialForm();
-
-    if (this.accessTokenService.afterRefreshToken) {
-      this.uiService.showSnackbar('Session has been expired. Relogin please.');
-    }
   }
 
   initialForm() {

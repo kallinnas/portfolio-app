@@ -1,7 +1,7 @@
 import { Component, computed, EventEmitter, Output } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
-import { AccessTokenService } from '../../services/token/access-token.service';
+import { TokenService } from '../../services/token.service';
 import { GeneralModule } from '../../modules/general.model';
 import { AuthService } from '../../services/auth.service';
 
@@ -21,7 +21,7 @@ export class HeaderComponent {
 
   constructor(
     public authService: AuthService,
-    private accessTokenService: AccessTokenService
+    private accessTokenService: TokenService
   ) { }
 
   onAccessMode() { this.authService.isRegisterMode.set(!this.isRegisterMode()); }
