@@ -24,9 +24,3 @@ export class UserRegistrDto {
       this.name = data.name;
     }
 }
-
-export class UserSignalrDto {
-    id!: string;
-    name!: string;
-    signalrId!: string;
-}
