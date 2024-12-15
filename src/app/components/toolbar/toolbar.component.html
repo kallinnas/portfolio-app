@@ -1,0 +1,16 @@
+<div fxLayout="row">
+    <label *ngIf="showUpload">
+        <button mat-icon-button (click)="fileInput.click()">
+            <mat-icon>file_upload</mat-icon>
+        </button>
+        <input #fileInput type="file" (change)="onFileChange($event)" hidden>
+    </label>
+
+    <button *ngIf="showDownload" mat-icon-button (click)="download.emit()">
+        <mat-icon>download</mat-icon>
+    </button>
+
+    <button *ngIf="showDelete" mat-icon-button (click)="remove.emit()">
+        <mat-icon>delete</mat-icon>
+    </button>
+</div>
