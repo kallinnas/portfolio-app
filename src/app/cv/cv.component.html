@@ -2,10 +2,10 @@
 
     <div class="pdf_container" fxFlex fxLayoutAlign="center center">
         <app-toolbar class="toolbar_overlay" [showUpload]="true" [showDownload]="true" [showDelete]="true"
-            (upload)="uploadPdf($event)" (download)="loadPdf()" (delete)="deletePdf()">
+            (upload)="uploadPdf($event)" (download)="downloadPdf()" (remove)="deletePdf()">
         </app-toolbar>
 
-        <object [data]="cvPath" type="application/pdf" height="100%" width="100%">
+        <object *ngIf="cvPath != ''" [data]="cvPath" type="application/pdf" height="100%" width="100%">
             Your browser does not support PDF displaying.
         </object>
     </div>

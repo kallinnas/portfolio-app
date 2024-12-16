@@ -15,7 +15,7 @@ import { FileService } from '../services/file.service';
 export class CvComponent implements OnInit {
 
   cvFile: File | null = null;
-  cvPath?: SafeResourceUrl;
+  cvPath: SafeResourceUrl | string = '';
   isLoading: boolean = false;
   isFileExist: boolean = false;
   url!: string;
@@ -32,10 +32,29 @@ export class CvComponent implements OnInit {
 
   loadPdf() {
     this.fileService.getCv().subscribe(blob => {
-      const url = this.createPdfUrl(blob);
+      this.cvFile = new File([blob], 'cv.pdf', { type: 'application/pdf' });
+      const url = this.createPdfUrl(this.cvFile);
       this.cvPath = this.sanitizer.bypassSecurityTrustResourceUrl(url);
       this.isFileExist = true;
-    }, () => this.isFileExist = false);
+    }, () => {
+      this.isFileExist = false;
+    });
+  }
+
+  downloadPdf() {
+    if (this.cvFile) {
+      const url = this.createPdfUrl(this.cvFile);
+      
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'Kalinichenko_Serhii_CV.pdf';
+
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      URL.revokeObjectURL(url);
+    }
   }
 
   uploadPdf(file: File) {
@@ -49,7 +68,7 @@ export class CvComponent implements OnInit {
 
   deletePdf() {
     this.fileService.deletePdf().subscribe(() => {
-      this.cvPath = undefined;
+      this.cvPath = '';
       this.cvFile = null;
       this.isFileExist = false;
     });
